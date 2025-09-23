@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import {  Module} from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { PrismaModule } from './prisma/prisma.module';
@@ -12,7 +12,7 @@ import { ConfigModule } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { RolesGuard } from './guards/roles.guard';
-import { AuthMiddleware } from './auth/auth.middleware';
+//import { AuthMiddleware } from './auth/auth.middleware';
 
 @Module({
   imports: [
@@ -39,8 +39,8 @@ import { AuthMiddleware } from './auth/auth.middleware';
     },
   ],
 })
-export class AppModule implements NestModule {
-  configure(consumer: MiddlewareConsumer) {
-    consumer.apply(AuthMiddleware).forRoutes('*'); // Apply to all routes
-  }
+export class AppModule{
+  // configure(consumer: MiddlewareConsumer) {
+  //   consumer.apply(AuthMiddleware).forRoutes('*'); // Apply to all routes
+  // }
 }
