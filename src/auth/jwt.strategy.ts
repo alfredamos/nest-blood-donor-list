@@ -1,24 +1,36 @@
-import { ExtractJwt, Strategy } from 'passport-jwt';
+// jwt.strategy.ts
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
-import { Injectable } from '@nestjs/common';
-import { UserInfo } from 'src/models/userInfo.model';
+import { Strategy, ExtractJwt } from 'passport-jwt';
+import { Request } from 'express';
+import { UserInfo } from '../models/userInfo.model';
+import { AuthService } from './auth.service';
+import { StatusCodes } from 'http-status-codes';
 
 @Injectable()
-export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
-  constructor() {
+export class JwtStrategy extends PassportStrategy(Strategy) {
+  constructor(private authService: AuthService) {
     super({
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      jwtFromRequest: ExtractJwt.fromExtractors([
+        (request: Request) => {
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+          return request?.cookies?.jwt; // Extract from 'jwt' cookie
+        },
+      ]),
       ignoreExpiration: false,
-      secretOrKey: process.env.JWT_TOKEN_KEY,
+      secretOrKey: process.env.JWT_TOKEN_KEY!,
     });
   }
 
-  // eslint-disable-next-line @typescript-eslint/require-await
   async validate(payload: UserInfo) {
-    return {
-      id: payload.id,
-      name: payload.name,
-      role: payload.role,
-    };
+    const user = await this.authService.getCurrentUser(payload.id);
+
+    if (!user)
+      throw new UnauthorizedException(
+        StatusCodes.UNAUTHORIZED,
+        'Access denied',
+      );
+
+    return user;
   }
 }

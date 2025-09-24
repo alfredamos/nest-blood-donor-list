@@ -1,5 +1,10 @@
 /* eslint-disable prettier/prettier */
-import {  Module} from '@nestjs/common';
+import {
+  MiddlewareConsumer,
+  Module,
+  NestModule,
+  RequestMethod,
+} from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { PrismaModule } from './prisma/prisma.module';
@@ -12,7 +17,7 @@ import { ConfigModule } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { RolesGuard } from './guards/roles.guard';
-//import { AuthMiddleware } from './auth/auth.middleware';
+import { AuthMiddleware } from './auth/auth.middleware';
 
 @Module({
   imports: [
@@ -39,8 +44,13 @@ import { RolesGuard } from './guards/roles.guard';
     },
   ],
 })
-export class AppModule{
-  // configure(consumer: MiddlewareConsumer) {
-  //   consumer.apply(AuthMiddleware).forRoutes('*'); // Apply to all routes
-  // }
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(AuthMiddleware).exclude(
+{path: 'auth/login', method: RequestMethod.POST }, // Example public login route
+      { path: 'auth/signup', method: RequestMethod.POST }, // Example public registration route
+      { path: 'auth/refresh', method: RequestMethod.POST }, // Example public registration route
+      'public-route/(.*)', // Example for a wildcard path
+    ).forRoutes('*'); // Apply to all routes
+  }
 }
