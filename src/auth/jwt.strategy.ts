@@ -1,4 +1,3 @@
-// jwt.strategy.ts
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy, ExtractJwt } from 'passport-jwt';
@@ -14,7 +13,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       jwtFromRequest: ExtractJwt.fromExtractors([
         (request: Request) => {
           // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-          return request?.cookies?.jwt; // Extract from 'jwt' cookie
+          return request?.cookies?.accessToken; // Extract from 'jwt' cookie
         },
       ]),
       ignoreExpiration: false,
@@ -23,14 +22,17 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: UserInfo) {
+    //----> Get the current user.
     const user = await this.authService.getCurrentUser(payload.id);
 
+    //----> Check for authentic user.
     if (!user)
       throw new UnauthorizedException(
         StatusCodes.UNAUTHORIZED,
         'Access denied',
       );
 
+    //----> Send back the response.
     return user;
   }
 }

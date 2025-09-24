@@ -12,7 +12,7 @@ export class ChangePasswordDto {
 
   @IsNotEmpty()
   @IsString()
-  confirmPPassword: string;
+  confirmPassword: string;
 
   @IsNotEmpty()
   @IsString()
