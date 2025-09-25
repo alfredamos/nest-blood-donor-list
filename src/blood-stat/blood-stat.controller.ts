@@ -15,6 +15,8 @@ import { UpdateBloodStatDto } from './dto/update-blood-stat.dto';
 import { Roles } from '../decorators/role.decorator';
 import { type Request } from 'express';
 import { SameUserOrAdminGuard } from '../guards/sameUserOrAdmin.guard';
+import { UserInfo } from '../models/userInfo.model';
+import { Reflector } from '@nestjs/core';
 
 @Controller('blood-stats')
 export class BloodStatController {
@@ -22,7 +24,11 @@ export class BloodStatController {
 
   @Roles('Admin', 'Staff', 'User')
   @Post()
-  create(@Body() createBloodStatDto: CreateBloodStatDto) {
+  create(@Body() createBloodStatDto: CreateBloodStatDto, @Req() req: Request) {
+    //----> Get the user-id from context.
+    const { id: userId } = req.user as UserInfo;
+    createBloodStatDto.userId = userId;
+
     return this.bloodStatService.create(createBloodStatDto);
   }
 
@@ -52,6 +58,10 @@ export class BloodStatController {
     @Body() updateBloodStatDto: UpdateBloodStatDto,
     @Req() req: Request,
   ) {
+    //----> Get the user-id from context.
+    const { id: userId } = req.user as UserInfo;
+    updateBloodStatDto.userId = userId;
+
     return this.bloodStatService.update(id, updateBloodStatDto, req);
   }
 

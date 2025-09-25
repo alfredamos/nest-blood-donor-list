@@ -13,6 +13,7 @@ export class BloodStatService {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(createBloodStatDto: CreateBloodStatDto) {
+
     return this.prisma.bloodStat.create({
       data: { ...(createBloodStatDto as unknown as BloodStat) },
     });

@@ -8,4 +8,6 @@ export class CreateBloodStatDto {
   @IsNotEmpty()
   @IsString()
   bloodGroup: string;
+
+  userId: string;
 }
