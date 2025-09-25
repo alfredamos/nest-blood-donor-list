@@ -37,7 +37,7 @@ export class VitalController {
     return this.vitalService.findAll();
   }
 
-  @Roles('Admin')
+  @Roles('Admin', 'Staff', 'User')
   @UseGuards(SameUserOrAdminGuard)
   @Get('get-by-user-id/:userId')
   findAllByUserId(@Param('userId') userId: string) {
@@ -63,7 +63,7 @@ export class VitalController {
     return this.vitalService.update(id, updateVitalDto, req);
   }
 
-  @Roles('Admin')
+  @Roles('Admin', 'Staff', 'User')
   @Delete(':id')
   remove(@Param('id') id: string, @Req() req: Request) {
     return this.vitalService.remove(id, req);
