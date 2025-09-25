@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateBloodStatDto } from './dto/create-blood-stat.dto';
 import { UpdateBloodStatDto } from './dto/update-blood-stat.dto';
 import { PrismaService } from '../prisma/prisma.service';
@@ -6,16 +10,22 @@ import { ResponseMessage } from '../utils/responseMessage';
 import { StatusCodes } from 'http-status-codes';
 import { Request } from 'express';
 import { checkOwnership } from '../utils/checkOwnership';
-import { BloodStat } from '@prisma/client';
 
 @Injectable()
 export class BloodStatService {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(createBloodStatDto: CreateBloodStatDto) {
+    //----> Get the user-id.
+    const userId = createBloodStatDto.userId;
+    const bloodStat = await this.findOneByUserId(userId);
 
+    //----> Check for existence of blood-stat for this user.
+    if (bloodStat) {
+      throw new BadRequestException('You already have blood-stat!');
+    }
     return this.prisma.bloodStat.create({
-      data: { ...(createBloodStatDto as unknown as BloodStat) },
+      data: { ...createBloodStatDto },
     });
   }
 
@@ -38,11 +48,14 @@ export class BloodStatService {
   }
 
   async findOne(id: string, req: Request) {
-    //----. Fetch the blood-stat with the given id.
+    //----> Fetch the blood-stat with the given id.
     const bloodStat = await this.getOneBloodStat(id);
 
     //----> Check for same user or admin privilege.
     checkOwnership(req, bloodStat.userId);
+
+    //----> Send back the response.
+    return bloodStat;
   }
 
   async findOneByUserId(userId: string) {

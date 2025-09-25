@@ -4,12 +4,13 @@ import { Role } from '@prisma/client';
 import { ForbiddenException } from '@nestjs/common';
 import { StatusCodes } from 'http-status-codes';
 
-export function checkOwnership(req: Request, idFromParam: string) {
+export function checkOwnership(req: Request, userIdFromResource: string) {
   //----> Get user id from context.
-  const { id: idFromContext, role } = req.user as UserInfo;
+  const { id: userIdFromContext, role } = req.user as UserInfo;
 
   //----> Check for same user.
-  const isSameUser = idFromContext.normalize() === idFromParam.normalize();
+  const isSameUser =
+    userIdFromContext.normalize() === userIdFromResource.normalize();
 
   //----> Check for admin privilege.
   const isAdmin = role === Role.Admin;
@@ -21,4 +22,7 @@ export function checkOwnership(req: Request, idFromParam: string) {
       "You don't have permission to perform this action.",
     );
   }
+
+  //----> Either admin or same user.
+  return !(!isAdmin && !isSameUser);
 }
