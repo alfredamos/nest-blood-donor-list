@@ -15,6 +15,7 @@ import { UpdateDonorDetailDto } from './dto/update-donor-detail.dto';
 import { type Request } from 'express';
 import { Roles } from '../decorators/role.decorator';
 import { SameUserOrAdminGuard } from '../guards/sameUserOrAdmin.guard';
+import { UserInfo } from '../models/userInfo.model';
 
 @Controller('donor-details')
 export class DonorDetailController {
@@ -22,7 +23,14 @@ export class DonorDetailController {
 
   @Roles('Admin', 'Staff', 'User')
   @Post()
-  create(@Body() createDonorDetailDto: CreateDonorDetailDto) {
+  create(
+    @Body() createDonorDetailDto: CreateDonorDetailDto,
+    @Req() req: Request,
+  ) {
+    //----> Add user-id to payload.
+    const { id } = req.user as UserInfo;
+    createDonorDetailDto.userId = id;
+
     return this.donorDetailService.create(createDonorDetailDto);
   }
 
@@ -52,6 +60,10 @@ export class DonorDetailController {
     @Body() updateDonorDetailDto: UpdateDonorDetailDto,
     @Req() req: Request,
   ) {
+    //----> Add user-id to payload.
+    const { id: userId } = req.user as UserInfo;
+    updateDonorDetailDto.userId = userId;
+
     return this.donorDetailService.update(id, updateDonorDetailDto, req);
   }
 
@@ -63,7 +75,7 @@ export class DonorDetailController {
 
   @Roles('Admin', 'Staff', 'User')
   @UseGuards(SameUserOrAdminGuard)
-  @Delete('delete-by-user-id/:id')
+  @Delete('delete-by-user-id/:userId')
   removeAllByUserId(@Param('userId') userId: string) {
     return this.donorDetailService.removeAllByUserId(userId);
   }

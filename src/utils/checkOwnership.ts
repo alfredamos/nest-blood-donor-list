@@ -18,7 +18,6 @@ export function checkOwnership(req: Request, userIdFromResource: string) {
   //----> Not the same user and not an admin.
   if (!isSameUser && !isAdmin) {
     throw new ForbiddenException(
-      StatusCodes.FORBIDDEN,
       "You don't have permission to perform this action.",
     );
   }

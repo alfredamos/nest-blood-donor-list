@@ -15,6 +15,7 @@ import { UpdateVitalDto } from './dto/update-vital.dto';
 import { type Request } from 'express';
 import { Roles } from '../decorators/role.decorator';
 import { SameUserOrAdminGuard } from '../guards/sameUserOrAdmin.guard';
+import { UserInfo } from '../models/userInfo.model';
 
 @Controller('vitals')
 export class VitalController {
@@ -22,7 +23,11 @@ export class VitalController {
 
   @Roles('Admin', 'Staff', 'User')
   @Post()
-  create(@Body() createVitalDto: CreateVitalDto) {
+  create(@Body() createVitalDto: CreateVitalDto, @Req() req: Request) {
+    //----> Add user-id to payload.
+    const { id } = req.user as UserInfo;
+    createVitalDto.userId = id;
+
     return this.vitalService.create(createVitalDto);
   }
 
@@ -52,6 +57,9 @@ export class VitalController {
     @Body() updateVitalDto: UpdateVitalDto,
     @Req() req: Request,
   ) {
+    const { id: userId } = req.user as UserInfo;
+    updateVitalDto.userId = userId;
+
     return this.vitalService.update(id, updateVitalDto, req);
   }
 
@@ -63,7 +71,7 @@ export class VitalController {
 
   @Roles('Admin', 'Staff', 'User')
   @UseGuards(SameUserOrAdminGuard)
-  @Delete('delete-all-by-user-id/:userId')
+  @Delete('delete-by-user-id/:userId')
   removeAllByUserId(@Param('userId') userId: string) {
     return this.vitalService.removeAllByUserId(userId);
   }

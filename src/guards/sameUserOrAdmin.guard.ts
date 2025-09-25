@@ -6,7 +6,6 @@ import {
 import { Request } from 'express';
 import { UserInfo } from '../models/userInfo.model';
 import { Role } from '@prisma/client';
-import { StatusCodes } from 'http-status-codes';
 
 export class SameUserOrAdminGuard implements CanActivate {
   canActivate(context: ExecutionContext): boolean {
@@ -27,7 +26,6 @@ export class SameUserOrAdminGuard implements CanActivate {
 
     if (!sameUser && !isAdmin) {
       throw new ForbiddenException(
-        StatusCodes.FORBIDDEN,
         "You don't have permission to view or perform this action!",
       );
     }
@@ -37,6 +35,6 @@ export class SameUserOrAdminGuard implements CanActivate {
   }
 
   private isSameUser(userIdOne: string, userIdTwo: string) {
-    return userIdOne.normalize() === userIdTwo.normalize();
+    return userIdOne?.normalize() === userIdTwo?.normalize();
   }
 }

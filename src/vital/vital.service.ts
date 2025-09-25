@@ -5,7 +5,7 @@ import { UpdateVitalDto } from './dto/update-vital.dto';
 import { Vital } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { checkOwnership } from '../utils/checkOwnership';
-import { type Request} from "express"
+import { type Request } from 'express';
 import { ResponseMessage } from '../utils/responseMessage';
 import { StatusCodes } from 'http-status-codes';
 
@@ -14,6 +14,10 @@ export class VitalService {
   constructor(private readonly prisma: PrismaService) {}
 
   create(createVitalDto: CreateVitalDto) {
+    //----> Calculate the bmi.
+    createVitalDto.bmi =
+      createVitalDto.weight / Math.pow(createVitalDto.height, 2);
+
     return this.prisma.vital.create({
       data: { ...(createVitalDto as unknown as Vital) },
     });
@@ -60,9 +64,16 @@ export class VitalService {
 
     //----> Check for same user or admin privilege.
     checkOwnership(req, vital.userId);
+
+    //----> Send back the response.
+    return vital;
   }
 
   async update(id: string, updateVitalDto: UpdateVitalDto, req: Request) {
+    //----> Calculate bmi.
+    updateVitalDto.bmi =
+      updateVitalDto.weight / Math.pow(updateVitalDto.height, 2);
+
     //----> Check for existence of vital with the given id.
     const vital = await this.getOneVital(id);
 
@@ -108,9 +119,7 @@ export class VitalService {
     });
 
     if (!allDeleteByUserId.count) {
-      throw new NotFoundException(
-        StatusCodes.NOT_FOUND,
-        'Vitals cannot be deleted!',
+      throw new NotFoundException('Vitals cannot be deleted!',
       );
     }
 
@@ -135,9 +144,7 @@ export class VitalService {
     });
 
     if (!allDeleted.count) {
-      throw new NotFoundException(
-        StatusCodes.NOT_FOUND,
-        'Vital cannot be deleted!',
+      throw new NotFoundException('Vital cannot be deleted!',
       );
     }
 

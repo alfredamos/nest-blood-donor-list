@@ -5,7 +5,7 @@ export class CreateDonorDetailDto {
   @IsNotEmpty()
   @IsNumber()
   @IsPositive()
-  volumerPerDonation: number;
+  volumePerDonation: number;
 
   @IsNotEmpty()
   @IsNumber()
@@ -15,4 +15,6 @@ export class CreateDonorDetailDto {
   @IsNotEmpty()
   @IsEnum(DonorType)
   type: DonorType;
+
+  userId: string;
 }

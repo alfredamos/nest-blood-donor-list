@@ -22,7 +22,9 @@ export class BloodStatService {
 
     //----> Check for existence of blood-stat for this user.
     if (bloodStat) {
-      throw new BadRequestException('You already have blood-stat!');
+      throw new BadRequestException(
+        'You already have blood-stat, you are only allowed to edit!!',
+      );
     }
     return this.prisma.bloodStat.create({
       data: { ...createBloodStatDto },
@@ -117,10 +119,7 @@ export class BloodStatService {
 
     //----> Check for failure to delete.
     if (!oneDeleted) {
-      throw new NotFoundException(
-        StatusCodes.NOT_FOUND,
-        "BloodStat can't be deleted successfully!",
-      );
+      throw new NotFoundException("BloodStat can't be deleted successfully!");
     }
 
     //----> Send back the response.
@@ -149,10 +148,7 @@ export class BloodStatService {
 
     //----> Check for failure to delete.
     if (!allDeleted.count) {
-      throw new NotFoundException(
-        StatusCodes.NOT_FOUND,
-        'BloodStat cannot be deleted!',
-      );
+      throw new NotFoundException('BloodStat cannot be deleted!');
     }
 
     //----> Send back the response.

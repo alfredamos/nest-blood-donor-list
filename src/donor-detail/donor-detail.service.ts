@@ -62,6 +62,9 @@ export class DonorDetailService {
 
     //----> Check for same user or admin privilege.
     checkOwnership(req, donorDetail.userId);
+
+    //----> Send back the response.
+    return donorDetail;
   }
 
   async update(
@@ -114,10 +117,7 @@ export class DonorDetailService {
     });
 
     if (!allDeleteByUserId.count) {
-      throw new NotFoundException(
-        StatusCodes.NOT_FOUND,
-        'Donor-details cannot be deleted!',
-      );
+      throw new NotFoundException('Donor-details cannot be deleted!');
     }
 
     //----> Send back the response.
@@ -141,10 +141,7 @@ export class DonorDetailService {
     });
 
     if (!allDeleted.count) {
-      throw new NotFoundException(
-        StatusCodes.NOT_FOUND,
-        'Donor-details cannot be deleted!',
-      );
+      throw new NotFoundException('Donor-details cannot be deleted!');
     }
 
     //----> Send back the response.

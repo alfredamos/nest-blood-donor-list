@@ -25,4 +25,8 @@ export class CreateVitalDto {
   @IsNumber()
   @IsPositive()
   weight: number;
+
+  bmi: number;
+
+  userId: string;
 }
